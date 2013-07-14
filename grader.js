@@ -46,7 +46,11 @@ var loadChecks = function(checksfile) {
 };
 
 var checkHtmlFile = function(htmlfile, checksfile) {
-    $ = cheerioHtmlFile(htmlfile);
+    return checkDocument(cheerioHtmlFile(htmlfile), checksfile);
+};
+
+var checkDocument = function(htmltree, checksfile) {
+    $ = htmltree;
     var checks = loadChecks(checksfile).sort();
     var out = {};
     for(var ii in checks) {
@@ -65,13 +69,7 @@ var clone = function(fn) {
 
 var buildfn = function(checksfile) {
     var responseHandler = function(result, response) {
-        $ = cheerio.load(result);
-        var checks = loadChecks(checksfile).sort();
-        var out = {};
-        for(var ii in checks) {
-            var present = $(checks[ii]).length > 0;
-            out[checks[ii]] = present;
-        }
+        var out = checkDocument(cheerio.load(result), checksfile);
         var outJson = JSON.stringify(out, null, 4);
         console.log(outJson);
     }
